@@ -24,6 +24,7 @@
 
 (db/defdbplugin LocalMongoDB []
   db/DB
+  (driver-name [this] "mongo")
   (fetch [this stream-name id]
     (m/with-mongo (mongo)
       (m/fetch-one collection :where {:stream-name stream-name
