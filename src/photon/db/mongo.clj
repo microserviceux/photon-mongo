@@ -21,7 +21,7 @@
 
 (def mongo (memoize m-mongo))
 
-(db/defdbplugin LocalMongoDB [conf]
+(defrecord LocalMongoDB [conf]
   db/DB
   (driver-name [this] "mongo")
   (fetch [this stream-name id]
