@@ -43,7 +43,7 @@
       (m/distinct-values collection k)))
   (store [this payload]
     (m/with-mongo (mongo conf)
-      (m/insert! collection (merge payload {:_id (:local-id payload)}))))
+      (m/insert! collection payload)))
   (lazy-events [this stream-name date]
     (db/lazy-events-page this stream-name date 0)) 
   (lazy-events-page [this stream-name date page]
