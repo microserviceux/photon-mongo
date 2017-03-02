@@ -1,10 +1,10 @@
-(defproject tranchis/photon-mongo "0.9.45"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :java-source-paths ["java"]
-  :dependencies [[org.clojure/clojure "1.7.0"]
-                 [tranchis/photon-db "0.9.45"]
-                 [congomongo "0.4.6"]
+(defproject tranchis/photon-mongo "0.10.1"
+  :description "MongoDB backend plugin for photon"
+  :url "https://github.com/microserviceux/photon-mongo"
+  :license {:name "GNU Affero General Public License Version 3"
+            :url "https://www.gnu.org/licenses/agpl-3.0.html"}
+  :dependencies [[org.clojure/clojure "1.8.0"]
+                 [tranchis/photon-db "0.10.1"]
+                 [congomongo "0.5.0"]
+                 [midje "1.8.3"]
                  [org.clojure/tools.logging "0.3.1"]])

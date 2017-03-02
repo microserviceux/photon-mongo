@@ -1,7 +1,10 @@
 (ns photon-mongo.core-test
   (:require [clojure.test :refer :all]
-            [photon-mongo.core :refer :all]))
+            [photon.db-check :as check]
+            [photon.db.mongo :as mongo]
+            [photon.db :as db]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest db-check-test
+  (let [impl (mongo/->LocalMongoDB {:mongodb.host "127.0.0.1"})]
+    (db/delete-all! impl)
+    (is (true? (check/db-check impl)))))

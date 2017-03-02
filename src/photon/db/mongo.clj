@@ -21,40 +21,47 @@
 
 (def mongo (memoize m-mongo))
 
+(defn strip-id [payload]
+  (dissoc payload :_id))
+
+(defn lazy-events-page [conf stream-name date page]
+  (m/with-mongo (mongo conf)
+    (let [l-date (if (string? date) (read-string date) date)
+          res (m/fetch collection :where {:stream-name stream-name}
+                       :skip (* page-size page) :limit page-size)]
+      (log/trace "Calling mongo: " :where {:stream-name stream-name}
+                 :skip (* page-size page) :limit page-size)
+      (if (< (count res) 1)
+        []
+        (concat res
+                (lazy-seq (lazy-events-page conf stream-name l-date (inc page))))))))
+
 (defrecord LocalMongoDB [conf]
   db/DB
   (driver-name [this] "mongo")
   (fetch [this stream-name id]
-    (m/with-mongo (mongo conf)
-      (m/fetch-one collection :where {:stream-name stream-name
-                                      :_id id})))
+    (let [res (m/with-mongo (mongo conf)
+                (m/fetch-one collection :where {:stream-name stream-name
+                                                :_id id}))]
+      (strip-id res)))
   (delete! [this id]
     (m/with-mongo (mongo conf)
       (m/destroy! collection {:_id id})))
   (delete-all! [this]
     (m/with-mongo (mongo conf)
       (m/destroy! collection {})))
-  (put [this data]
+  (search [this id]
     (m/with-mongo (mongo conf)
-      (m/insert! collection data)))
-  (search [this id] (db/fetch this {:$exists true} id))
+      (map strip-id (m/fetch :events :where {:_id id}))))
   (distinct-values [this k]
     (m/with-mongo (mongo conf)
-      (m/distinct-values collection k)))
+      (into #{} (m/distinct-values collection (name k)))))
   (store [this payload]
     (m/with-mongo (mongo conf)
-      (m/insert! collection payload)))
+      (m/insert! collection (assoc payload :_id (:order-id payload)))))
   (lazy-events [this stream-name date]
-    (db/lazy-events-page this stream-name date 0)) 
-  (lazy-events-page [this stream-name date page]
-    (m/with-mongo (mongo conf)
-      (let [l-date (if (string? date) (read-string date) date)
-            res (m/fetch collection :where {:stream-name stream-name}
-                         :skip (* page-size page) :limit page-size)]
-        (log/info "Calling mongo: " :where {:stream-name stream-name}
-                  :skip (* page-size page) :limit page-size)
-        (if (< (count res) 1)
-          []
-          (concat res
-                  (lazy-seq (db/lazy-events-page this stream-name l-date (inc page)))))))))
+    (let [regex (if (.contains stream-name "**")
+                  (re-pattern (clojure.string/replace stream-name #"\*\*" ".*"))
+                  stream-name)]
+      (lazy-events-page conf regex date 0))))
 
