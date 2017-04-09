@@ -27,10 +27,10 @@
 (defn lazy-events-page [conf stream-name date page]
   (m/with-mongo (mongo conf)
     (let [res (m/fetch collection :where {:stream-name stream-name
-                                          :order-id {:$gte date}}
+                                          :_id {:$gte date}}
                        :skip (* page-size page) :limit page-size)]
       (log/trace "Calling mongo: " :where {:stream-name stream-name
-                                           :order-id {:$gte date}}
+                                           :_id {:$gte date}}
                  :skip (* page-size page) :limit page-size)
       (if (< (count res) 1)
         []

@@ -1,4 +1,4 @@
-(defproject tranchis/photon-mongo "0.10.2"
+(defproject tranchis/photon-mongo "0.10.3"
   :description "MongoDB backend plugin for photon"
   :url "https://github.com/microserviceux/photon-mongo"
   :license {:name "GNU Affero General Public License Version 3"
