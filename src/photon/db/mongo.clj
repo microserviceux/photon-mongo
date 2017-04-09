@@ -45,9 +45,9 @@
                 (m/fetch-one collection :where {:stream-name stream-name
                                                 :_id id}))]
       (strip-id res)))
-  (delete! [this id]
+  (delete! [this stream-name order-id]
     (m/with-mongo (mongo conf)
-      (m/destroy! collection {:_id id})))
+      (m/destroy! collection {:_id order-id :stream-name stream-name})))
   (delete-all! [this]
     (m/with-mongo (mongo conf)
       (m/destroy! collection {})))
