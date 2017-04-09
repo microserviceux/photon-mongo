@@ -26,15 +26,16 @@
 
 (defn lazy-events-page [conf stream-name date page]
   (m/with-mongo (mongo conf)
-    (let [l-date (if (string? date) (read-string date) date)
-          res (m/fetch collection :where {:stream-name stream-name}
+    (let [res (m/fetch collection :where {:stream-name stream-name
+                                          :order-id {:$gte date}}
                        :skip (* page-size page) :limit page-size)]
-      (log/trace "Calling mongo: " :where {:stream-name stream-name}
+      (log/trace "Calling mongo: " :where {:stream-name stream-name
+                                           :order-id {:$gte date}}
                  :skip (* page-size page) :limit page-size)
       (if (< (count res) 1)
         []
         (concat res
-                (lazy-seq (lazy-events-page conf stream-name l-date (inc page))))))))
+                (lazy-seq (lazy-events-page conf stream-name date (inc page))))))))
 
 (defrecord LocalMongoDB [conf]
   db/DB
@@ -62,6 +63,7 @@
   (lazy-events [this stream-name date]
     (let [regex (if (.contains stream-name "**")
                   (re-pattern (clojure.string/replace stream-name #"\*\*" ".*"))
-                  stream-name)]
+                  stream-name)
+          int-date (if (string? date) (read-string date) date)]
       (lazy-events-page conf regex date 0))))
 
