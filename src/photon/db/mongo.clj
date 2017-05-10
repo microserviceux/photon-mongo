@@ -6,7 +6,7 @@
 (def page-size 100)
 
 (defn mongo-conn [conf]
-  (m/make-connection "photon" :host (:mongodb.host conf)))
+  (m/make-connection (:mongodb.uri conf)))
 
 (def collection :events)
 

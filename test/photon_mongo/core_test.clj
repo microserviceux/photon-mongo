@@ -5,6 +5,7 @@
             [photon.db :as db]))
 
 (deftest db-check-test
-  (let [impl (mongo/->LocalMongoDB {:mongodb.host "127.0.0.1"})]
+  (let [impl (mongo/->LocalMongoDB
+              {:mongodb.uri "mongodb://localhost/photon-test"})]
     (db/delete-all! impl)
     (is (true? (check/db-check impl)))))
